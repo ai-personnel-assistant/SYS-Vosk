@@ -4,10 +4,12 @@ import audioop
 import wave
 import json
 import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
+load_dotenv()
 
-model = Model("models/vosk-model-fr-0.22")
+model = Model("models/" + os.getenv("MODEL"))
 sample_rate = 16000
 
 @app.route('/transcribe', methods=['POST'])
@@ -48,6 +50,8 @@ def transcribe_audio():
         if rec.AcceptWaveform(data):
             transcription += str(eval(rec.Result())['text'])+' '
 
+    wf.close()
+    
     transcription += str(eval(rec.FinalResult())['text'])
 
     return jsonify({'text': transcription}), 200
